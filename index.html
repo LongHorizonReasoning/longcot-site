@@ -146,15 +146,15 @@
         </div>
 
         <div class="analysis-card">
-          <img src="assets/figures/accuracy_vs_dag_size.png" alt="Accuracy vs DAG size" loading="lazy">
+          <img src="assets/figures/accuracy_vs_dag_size_cover2.png" alt="Accuracy vs horizon length" loading="lazy">
           <h3>Accuracy Collapses as Horizon Length Grows</h3>
-          <p>Performance drops sharply as dependency graphs get larger. The benchmark shows that long-horizon reasoning is not just short reasoning repeated many times: errors accumulate, plans drift, and recovery becomes hard.</p>
+          <p>Accuracy falls sharply as problem DAG sizes grow, inducing planning and execution failures well before context windows saturate. The gap from an independent-error baseline is also substantial, showing that LongCoT failures are not just short-reasoning errors repeated many times, but a distinct long-horizon reasoning problem.</p>
         </div>
 
         <div class="analysis-card">
-          <img src="assets/figures/longcot_simulation.png" alt="RLM comparison" loading="lazy">
+          <img src="assets/figures/longcot_comparison4.png" alt="RLM comparison on LongCoT" loading="lazy">
           <h3>Scaffolds Do Not Eliminate the Long-Horizon Gap</h3>
-          <p>Recursive Language Models with GPT 5.2 do not outperform GPT 5.2 alone on the compositional core of the benchmark. This is consistent with LongCoT's design: the key difficulty lies in sustaining one coherent reasoning trace, not merely distributing steps across a scaffold.</p>
+          <p>Using GPT 5.2 as the base model, RLM does not outperform GPT 5.2 alone in the reasoning-only setting. When code execution is allowed, performance improves mainly on implicit domains where substantial parts of the dependency structure can be offloaded to simulation, while explicit compositional domains remain near zero. These results are consistent with LongCoT's goal of isolating long-horizon reasoning rather than scaffolded problem solving.</p>
         </div>
 
       </div>
