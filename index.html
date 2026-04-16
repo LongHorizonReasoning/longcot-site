@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LongCoT — Benchmarking Long-Horizon Chain-of-Thought Reasoning</title>
+  <meta name="description" content="LongCoT: 2,500 problems across 5 domains measuring long-horizon reasoning in frontier language models. Best model achieves only 9.83% accuracy.">
+  <meta property="og:title" content="LongCoT Benchmark">
+  <meta property="og:description" content="2,500 problems across 5 domains measuring long-horizon chain-of-thought reasoning. Best score: 9.83%.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav id="navbar">
+    <div class="nav-inner">
+      <a href="#" class="nav-brand">Long<span class="brand-accent">CoT</span></a>
+      <button class="nav-toggle" aria-label="Toggle navigation">&#9776;</button>
+      <ul class="nav-links">
+        <li><a href="#leaderboard">Leaderboard</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#analysis">Analysis</a></li>
+        <li><a href="#domains">Domains</a></li>
+        <li><a href="#team">Team</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <header id="hero">
+    <div class="container">
+      <h1 class="hero-title">Long<span class="brand-accent">CoT</span></h1>
+      <p class="hero-subtitle">Benchmarking Long-Horizon Chain-of-Thought Reasoning</p>
+      <div class="hero-cta">
+        <a href="https://arxiv.org/abs/2604.14140" class="btn btn-primary hero-link-btn" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" aria-hidden="true" class="hero-link-icon">
+            <path d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M14 2v5h5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M9 13h6M9 17h6M9 9h2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          <span>Paper</span>
+        </a>
+        <a href="https://github.com/LongHorizonReasoning/longcot" class="btn btn-primary hero-link-btn" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" aria-hidden="true" class="hero-link-icon">
+            <path d="M12 .5C5.65.5.5 5.8.5 12.34c0 5.23 3.3 9.66 7.87 11.22.58.11.79-.26.79-.58 0-.29-.01-1.05-.02-2.06-3.2.71-3.88-1.58-3.88-1.58-.52-1.37-1.28-1.73-1.28-1.73-1.04-.73.08-.72.08-.72 1.15.08 1.75 1.21 1.75 1.21 1.02 1.81 2.68 1.29 3.34.99.1-.76.4-1.29.72-1.58-2.55-.3-5.23-1.31-5.23-5.86 0-1.3.45-2.36 1.19-3.2-.12-.3-.52-1.5.11-3.13 0 0 .97-.32 3.19 1.22a10.7 10.7 0 0 1 5.8 0c2.22-1.54 3.19-1.22 3.19-1.22.63 1.63.23 2.83.11 3.13.74.84 1.18 1.9 1.18 3.2 0 4.56-2.69 5.56-5.26 5.85.41.36.78 1.08.78 2.17 0 1.57-.01 2.83-.01 3.21 0 .32.21.7.8.58 4.56-1.57 7.85-6 7.85-11.22C23.5 5.8 18.35.5 12 .5Z" fill="currentColor"/>
+          </svg>
+          <span>Code</span>
+        </a>
+        <a href="https://huggingface.co/datasets/LongHorizonReasoning/LongCoT" class="btn btn-primary hero-link-btn" target="_blank" rel="noopener">
+          <img
+            src="https://huggingface.co/datasets/huggingface/brand-assets/resolve/main/hf-logo.png?download=true"
+            alt=""
+            aria-hidden="true"
+            class="hero-link-icon hero-link-icon-img"
+          >
+          <span>Dataset</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Leaderboard -->
+  <section id="leaderboard">
+    <div class="container">
+      <h2 class="section-title">Leaderboard</h2>
+
+      <div class="tab-bar">
+        <button class="tab-btn active" data-tab="longcot">LongCoT</button>
+        <button class="tab-btn" data-tab="longcot_mini">LongCoT-mini</button>
+      </div>
+
+      <div class="chart-container">
+        <canvas id="overallChart"></canvas>
+      </div>
+
+      <div class="table-wrapper">
+        <table id="leaderboard-table">
+          <thead>
+            <tr>
+              <th data-sort="rank">Rank</th>
+              <th data-sort="name">Model</th>
+              <th data-sort="provider">Provider</th>
+              <th data-sort="overall" class="sort-active sort-desc">Overall</th>
+              <th data-sort="logic">Logic</th>
+              <th data-sort="cs">CS</th>
+              <th data-sort="chemistry">Chemistry</th>
+              <th data-sort="chess">Chess</th>
+              <th data-sort="math">Math</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <h3 class="subsection-title">Per-Domain Comparison</h3>
+      <div class="chart-container">
+        <canvas id="domainChart"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- About -->
+  <section id="about" class="alt-bg">
+    <div class="container">
+      <h2 class="section-title">About LongCoT</h2>
+      <div class="about-grid">
+        <div class="about-text">
+          <p><strong>LongCoT</strong> studies a specific capability: <strong>how accurately can frontier models reason over long horizons in their chain of thought?</strong> The benchmark is designed to measure this capability directly rather than through long-context retrieval, tool use, or agent scaffolds.</p>
+          <p>It contains 2,500 expert-designed problems across chemistry, mathematics, computer science, chess, and logic. Each problem is a short prompt with a verifiable answer, but solving it requires maintaining a coherent reasoning trace across many interdependent steps.</p>
+          <ul>
+            <li><strong>Short, self-contained inputs</strong> with <strong>long reasoning outputs</strong>, often tens to hundreds of thousands of tokens.</li>
+            <li><strong>Explicit or implicit dependency graphs</strong> that require planning, state tracking, constraint propagation, and backtracking.</li>
+            <li><strong>No tools or scaffolding in the primary setting</strong>, so the benchmark isolates the underlying model's reasoning rather than its external infrastructure.</li>
+            <li><strong>Controlled single-step difficulty</strong>, where local steps are tractable in isolation and difficulty comes from composition.</li>
+            <li><strong>Scalable template-based construction</strong> across five domains, with a 500-question LongCoT-mini split for easier long-horizon problems.</li>
+          </ul>
+          <p>At release, the best model reaches only <strong>9.83%</strong> accuracy on LongCoT. The benchmark exposes a substantial gap in the ability of current frontier models to reason reliably over extended horizons.</p>
+        </div>
+        <div class="about-figure">
+          <img src="assets/figures/benchmark_comparison.png" alt="Benchmark comparison table showing LongCoT vs other benchmarks" loading="lazy">
+          <p class="figure-caption">LongCoT combines short inputs, long reasoning outputs, controlled single-step difficulty, verifiable answers, and no tool dependencies. <strong>HC</strong> denotes hardness-confounded benchmarks; <strong>SC</strong> denotes scaffold-confounded benchmarks.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Analysis -->
+  <section id="analysis" class="alt-bg">
+    <div class="container">
+      <h2 class="section-title">Key Findings</h2>
+      <p class="section-desc">LongCoT is difficult in a qualitatively different way from short-reasoning benchmarks: plans drift, partial results are lost, backtracking is costly, and simple scaffolds do not reliably recover the missing capability.</p>
+      <div class="analysis-grid">
+
+        <div class="analysis-card">
+          <img src="assets/figures/longcot_linear.png" alt="Token usage vs accuracy" loading="lazy">
+          <h3>Longer Traces Help, But Do Not Solve the Problem</h3>
+          <p>Higher token usage correlates with better performance, but even the strongest model remains below 10% accuracy. GPT 5.2 leads the benchmark at 9.83% while averaging roughly 62K reasoning tokens per question.</p>
+        </div>
+
+        <div class="analysis-card">
+          <img src="assets/figures/accuracy_vs_dag_size.png" alt="Accuracy vs DAG size" loading="lazy">
+          <h3>Accuracy Collapses as Horizon Length Grows</h3>
+          <p>Performance drops sharply as dependency graphs get larger. The benchmark shows that long-horizon reasoning is not just short reasoning repeated many times: errors accumulate, plans drift, and recovery becomes hard.</p>
+        </div>
+
+        <div class="analysis-card">
+          <img src="assets/figures/longcot_simulation.png" alt="RLM comparison" loading="lazy">
+          <h3>Scaffolds Do Not Eliminate the Long-Horizon Gap</h3>
+          <p>Recursive Language Models with GPT 5.2 do not outperform GPT 5.2 alone on the compositional core of the benchmark. This is consistent with LongCoT's design: the key difficulty lies in sustaining one coherent reasoning trace, not merely distributing steps across a scaffold.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Domains -->
+  <section id="domains">
+    <div class="container">
+      <h2 class="section-title">Five Domains</h2>
+      <p class="section-desc">Each domain is built from realistic templates that encode explicit or latent computational structure. This forces models to sustain coherent reasoning over the full dependency graph.</p>
+      <div class="domain-grid">
+
+        <div class="domain-card domain-logic">
+          <div class="domain-icon">&#x1F9E9;</div>
+          <h3>Logic</h3>
+          <p>Planning, search, and constraint-satisfaction problems that require models to track state, explore alternatives, detect dead ends, and backtrack when early choices make the task unsolvable.</p>
+        </div>
+
+        <div class="domain-card domain-cs">
+          <div class="domain-icon">&#x1F4BB;</div>
+          <h3>Computer Science</h3>
+          <p>Algorithm simulation and program tracing: type inference, scheduling, flow networks, Turing machines, matrix chain multiplication, IR optimisation, and more.</p>
+        </div>
+
+        <div class="domain-card domain-chemistry">
+          <div class="domain-icon">&#x1F9EA;</div>
+          <h3>Chemistry</h3>
+          <p>Multi-step molecular reasoning: property computation, reaction prediction, topology analysis, substructure matching, and protein structure analysis via SMILES strings.</p>
+        </div>
+
+        <div class="domain-card domain-chess">
+          <div class="domain-icon">&#x265E;</div>
+          <h3>Chess</h3>
+          <p>Combinatorial chess reasoning: move evaluation, game reconstruction, move simulation, and constrained pathfinding.</p>
+        </div>
+
+        <div class="domain-card domain-math">
+          <div class="domain-icon">&pi;</div>
+          <h3>Mathematics</h3>
+          <p>Chained competition-style problems with linear, DAG, conditional, and backtracking dependency structures between subproblems.</p>
+        </div>
+
+      </div>
+
+      <h3 class="subsection-title">Example Problems</h3>
+      <p class="section-desc">These examples illustrate the benchmark's core pattern: short prompts with verifiable answers whose real difficulty comes from traversing a longer dependency structure.</p>
+
+      <div class="tab-bar">
+        <button class="tab-btn active" data-example="math">Mathematics</button>
+        <button class="tab-btn" data-example="chemistry">Chemistry</button>
+        <button class="tab-btn" data-example="chess">Chess</button>
+        <button class="tab-btn" data-example="logic">Logic</button>
+        <button class="tab-btn" data-example="cs">Computer Science</button>
+      </div>
+
+      <div class="example-panel active" id="example-math">
+        <div class="example-header">
+          <span class="example-domain domain-math-badge">Mathematics</span>
+          <span class="example-info">DAG &middot; Easy &middot; 15 nodes</span>
+        </div>
+        <div class="example-content">
+          <p><strong>DAG Chained Problems:</strong> A sequence of olympiad-style subproblems where each answer parameterises later nodes. The individual steps are standard competition questions; the difficulty comes from propagating values correctly through the graph.</p>
+          <pre class="code-block">Problem node_0: The top section of an 8 cm by 6 cm rectangular sheet of
+paper is folded so that corner P lands on corner R. What is the length
+of the crease?
+
+Problem node_1: Find the number of ordered [node_0 numerator + 49]-tuples
+(x_0, ..., x_63) of distinct elements of {1, 2, ..., 2017} such that
+x_0 + x_1 + 2x_2 + 3x_3 + ... + 63x_63 is divisible by 2017.
+
+Problem node_2: A convex polyhedron has congruent triangular faces with
+angles 36°, [derived from node_1]°, and [derived from node_1]°. What is
+the maximum possible number of faces?
+
+Problem node_3: A positive sequence satisfies
+a_(n+1) a_(n-1)^5 = a_n^4 a_(n-2)^2
+with a_1 = 8, a_2 = [node_2 + 28], and a_3 = 1024. Compute
+sqrt(a_1 + sqrt(a_2 + sqrt(a_3 + ... ))).
+
+...
+
+Problem node_6: Pablo assembles 27 unit cubes into a 3 x 3 x 3 cube.
+If 10 small cubes are red, 9 blue, and 8 yellow, what is the smallest
+possible red surface area?
+
+Problem node_14: Sylvia chooses positive integers a, b, c. Peter computes
+a + b/c, Paul computes a/c + b, and Mary computes (a + b)/c = k, with the
+first two values determined by earlier nodes. What is k?
+
+What are the answers to node_14, node_0, node_3, and node_6?</pre>
+          <div class="example-answer">
+            <strong>Answer:</strong> <code>solution = [13, 15/2, 3&#8730;2, 12]</code>
+          </div>
+        </div>
+      </div>
+
+      <div class="example-panel" id="example-chemistry">
+        <div class="example-header">
+          <span class="example-domain domain-chemistry-badge">Chemistry</span>
+          <span class="example-info">Molecules &middot; Medium &middot; 9 subproblems</span>
+        </div>
+        <div class="example-content">
+          <p><strong>Reaction Cascade:</strong> Multi-step molecular reasoning over SMILES strings. Molecules are selected by properties, reacted under specified conditions, and analysed for topological properties.</p>
+          <pre class="code-block">Subproblem 1: Given molecules A: ClC=1C=C(C(=O)OO)C=CC1,
+B: CC(C)Sc1ccccc1, C: CC(C)(C)N1CCNCC1=O — select the one with
+the greatest number of unique radius-2 Morgan fingerprint bits. -> Mol-1
+
+Subproblem 2: Choose which SMILES from three options is equivalent to
+NC1=C(SC=2N=C(N=C(C21)C2=NC=CC(=C2)OC)SC)C(=O)N -> Mol-2
+
+Subproblem 3: Predict the major product when Mol-1 reacts with Mol-2
+in CHCl3 at 0°C. -> Mol-3
+
+Subproblem 4: Select the SMILES matching formula C4H11NO -> Mol-4
+
+Subproblem 5: Predict the product of Mol-3 + Mol-4 in DMF at 90°C -> Mol-5
+
+Subproblem 6-7: Select molecules by implicit hydrogen count -> Mol-6, Mol-7
+
+Subproblem 8: Predict reaction product of Mol-6 + Mol-7 in CHCl3
+at 65°C -> Mol-8
+
+Subproblem 9: Compute topological diameter of Mol-5, Mol-7, Mol-8.</pre>
+          <div class="example-answer">
+            <strong>Answer:</strong> <code>solution = [11, 5, 5]</code>
+          </div>
+        </div>
+      </div>
+
+      <div class="example-panel" id="example-chess">
+        <div class="example-header">
+          <span class="example-domain domain-chess-badge">Chess</span>
+          <span class="example-info">Minimax Pawn Capture &middot; Hard &middot; 15 pawns</span>
+        </div>
+        <div class="example-content">
+          <p><strong>Minimax Pawn Capture:</strong> Alice and Bob play a turn-based game on a 30&times;30 board. Alice maximises total knight moves; Bob minimises them. Each turn, a player selects a pawn for the knight to capture via shortest BFS path.</p>
+          <pre class="code-block">Board size: 30 x 30
+Knight position: [7, 13]
+Pawn positions: [[21,20], [12,3], [24,27], [5,9], [27,7], [22,6],
+  [12,9], [9,8], [9,25], [4,19], [20,2], [8,8], [26,9], [10,28], [6,8]]
+
+Rules:
+- Alice goes first, tries to maximise total moves
+- Bob tries to minimise total moves
+- Each turn: select any remaining pawn, knight captures it via
+  shortest BFS path (may pass other pawns without capturing)
+- Both players play optimally
+
+Return the maximum total number of moves Alice can achieve.</pre>
+          <div class="example-answer">
+            <strong>Answer:</strong> <code>solution = 106</code>
+          </div>
+        </div>
+      </div>
+
+      <div class="example-panel" id="example-logic">
+        <div class="example-header">
+          <span class="example-domain domain-logic-badge">Logic</span>
+          <span class="example-info">Sokoban &middot; Medium &middot; 5 boxes</span>
+        </div>
+        <div class="example-content">
+          <p><strong>Sokoban:</strong> Push all boxes ($) onto goal positions (.) on an 11&times;8 grid. One wrong push can make the puzzle unsolvable, requiring planning and backtracking.</p>
+          <pre class="code-block">Grid (11 x 8, 5 boxes, 5 goals):
+[[ , #, #, #, #, #, #, #,  ,  ,  ],
+ [#, #,  ,  ,  ,  ,  , #, #,  ,  ],
+ [#,  ,  , $,  , $,  ,  , #,  ,  ],
+ [#,  , $,  , $,  , $,  , #,  ,  ],
+ [#, #,  , #, #, #,  , #, #, #, #],
+ [ , #, @,  ,  , ., ., ., ., ., #],
+ [ , #, #,  ,  ,  ,  ,  , #, #, #],
+ [ ,  , #, #, #, #, #, #, #,  ,  ]]
+
+Player (@) at (5,2). Boxes at (2,3),(2,5),(3,2),(3,4),(3,6).
+Goals at (5,5),(5,6),(5,7),(5,8),(5,9).
+
+Find a sequence of U/D/L/R moves that pushes all boxes onto goals.</pre>
+          <div class="example-answer">
+            <strong>Answer:</strong> <code>solution = UURRUURRDDDUUULLDDLLDDRRRRRR...</code> &nbsp;(144 moves)
+          </div>
+        </div>
+      </div>
+
+      <div class="example-panel" id="example-cs">
+        <div class="example-header">
+          <span class="example-domain domain-cs-badge">Computer Science</span>
+          <span class="example-info">Distributed Memory &middot; Easy &middot; 16 processors</span>
+        </div>
+        <div class="example-content">
+          <p><strong>Distributed Memory Simulation:</strong> Simulate a bitonic compare-split routine on a distributed-memory machine, record the synchronized states, and then answer downstream questions about baseline and intervened runs.</p>
+          <pre class="code-block">procedure foo(local, rank, P):
+  sort(local, ascending=true)
+  k = 2
+  while k <= P:
+    j = k / 2
+    while j >= 1:
+      partner = rank XOR j
+      ascending_block = ((rank & k) == 0)
+      i_am_low = ((rank & j) == 0)
+      keep_small = (ascending_block == i_am_low)
+      local = compare_split(local, partner, keep_small)
+      j = j / 2
+    barrier()
+    k = k * 2
+
+Input size N = 512, processors P = 16.
+Starting values: the sequence 512 down through 1 distributed contiguously
+across 16 processors in blocks of size 32.
+
+Recorded states:
+- S0 is the initial layout
+- S1 is after each processor locally sorts its block
+- Each later state records one synchronized compare-split round
+
+Selected chained questions:
+Q1: In state S0, how many values are stored on each processor?
+
+Q12: What is the minimum value on a derived processor p in a derived state S_s?
+
+Q15: Under an intervention that negates odd local indices on odd processors at
+every odd state, what is x - 2y for a derived processor/state pair?
+
+Q25: After adding a positive delta to every value on one processor at an
+intermediate state, what is the sum of all values in the final modified run?
+
+Return the answers to Q12, Q15, and Q25.</pre>
+          <div class="example-answer">
+            <strong>Answer:</strong> <code>solution = [193, 496, 131360]</code>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="team" class="alt-bg">
+    <div class="container">
+      <div class="wide-section">
+        <h2 class="section-title">Team</h2>
+        <div class="team-block">
+          <p class="team-authors">
+            Sumeet Ramesh Motwani<sup>*,1</sup>,
+            Daniel Nichols<sup>*,2</sup>,
+            Charles London<sup>*,1</sup>,
+            Peggy Li<sup>*,2</sup>,
+            Fabio Pizzati<sup>*,3</sup>,<br>
+            Acer Blake<sup>1</sup>,
+            Hasan Hammoud<sup>4</sup>,
+            Tavish McDonald<sup>2</sup>,
+            Akshat Naik<sup>1</sup>,
+            Alesia Ivanova<sup>1</sup>,
+            Vignesh Baskaran<sup>5</sup>,
+            Ivan Laptev<sup>3</sup>,
+            Ruben Glatt<sup>2</sup>,
+            Tal Ben-Nun<sup>2</sup>,
+            Philip Torr<sup>1</sup>,
+            Natasha Jaques<sup>6</sup>,
+            Ameya Prabhu<sup>7</sup>,
+            Brian Bartoldson<sup>2</sup>,
+            Bhavya Kailkhura<sup>2</sup>,
+            Christian Schroeder de Witt<sup>1</sup>
+          </p>
+          <p class="team-note"><sup>*</sup> Joint-first authors.</p>
+          <div class="team-affiliations">
+            <span><sup>1</sup> University of Oxford</span>
+            <span><sup>2</sup> Lawrence Livermore National Laboratory</span>
+            <span><sup>3</sup> MBZUAI</span>
+            <span><sup>4</sup> KAUST</span>
+            <span><sup>5</sup> Hexo AI</span>
+            <span><sup>6</sup> University of Washington</span>
+            <span><sup>7</sup> University of T&uuml;bingen</span>
+          </div>
+          <p class="team-contact">Correspondence: <a href="mailto:charles.london@cs.ox.ac.uk">charles.london@cs.ox.ac.uk</a>, <a href="mailto:sumeet.motwani@eng.ox.ac.uk">sumeet.motwani@eng.ox.ac.uk</a>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="citation">
+    <div class="container">
+      <div class="narrow-section">
+        <h2 class="section-title">Citation</h2>
+        <p class="section-desc">If you found LongCoT useful, please cite us at:</p>
+        <div class="code-block-wrapper">
+          <pre class="code-block bibtex"><code>@article{motwani2026longcot,
+  title     = {LongCoT: Benchmarking Long-Horizon
+               Chain-of-Thought Reasoning},
+  author    = {Motwani, Sumeet Ramesh and Nichols, Daniel and London, Charles and Li, Peggy and Pizzati, Fabio and Blake, Acer and Hammoud, Hasan and McDonald, Tavish and Naik, Akshat and Ivanova, Alesia and Baskaran, Vignesh and Laptev, Ivan and Glatt, Ruben and Ben-Nun, Tal and Torr, Philip and Jaques, Natasha and Prabhu, Ameya and Bartoldson, Brian and Kailkhura, Bhavya and Schroeder de Witt, Christian},
+  year      = {2026},
+  eprint    = {ARXIV_ID_HERE},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.LG},
+  url       = {https://arxiv.org/abs/ARXIV_ID_HERE}
+}</code></pre>
+          <button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling.textContent, this)">Copy</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Submit
+  <section id="submit">
+    <div class="container">
+      <h2 class="section-title">Submit Results</h2>
+      <div class="submit-content">
+        <p>We welcome community submissions to the LongCoT leaderboard. To submit your model's results:</p>
+        <ol>
+          <li><strong>Evaluate your model</strong> on all 2,500 LongCoT questions using the <code>longcot</code> package.</li>
+          <li><strong>Format results</strong> as JSON with your model name, provider, and per-question results.</li>
+          <li><strong>Open a Pull Request</strong> on our GitHub repository with your results file.</li>
+        </ol>
+        <div class="code-block-wrapper">
+          <pre class="code-block"><code>{
+  "model": "Your Model Name",
+  "provider": "Your Organisation",
+  "type": "open|closed",
+  "results": [
+    {"question_id": "Sudoku_easy_1", "response": "...", "correct": true},
+    ...
+  ]
+}</code></pre>
+        </div>
+        <p>We verify all submissions before adding them to the leaderboard. Results must be reproducible and use the default evaluation settings (single-shot, default temperature).</p>
+      </div>
+    </div>
+  </section>
+  -->
+
+  <script src="js/main.js"></script>
+</body>
+</html>
