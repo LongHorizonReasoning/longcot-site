@@ -4,6 +4,11 @@ let currentTab = 'longcot';
 let sortCol = 'overall';
 let sortDir = 'desc';
 
+const TAB_DESCRIPTIONS = {
+  longcot: '2,000 medium and hard questions.',
+  longcot_mini: '500 easy questions.'
+};
+
 const DOMAIN_COLORS = {
   logic: '#4f46e5',
   cs: '#2563eb',
@@ -98,9 +103,17 @@ function initExampleTabs() {
 // === Render All Leaderboard Components ===
 function renderLeaderboard() {
   if (!data) return;
+  renderLeaderboardScope();
   renderOverallChart();
   renderTable();
   renderDomainChart();
+}
+
+function renderLeaderboardScope() {
+  const scope = document.getElementById('leaderboard-scope');
+  if (scope) {
+    scope.textContent = TAB_DESCRIPTIONS[currentTab] || '';
+  }
 }
 
 // === Overall Bar Chart ===

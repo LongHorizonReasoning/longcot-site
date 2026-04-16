@@ -301,13 +301,20 @@ section {
 }
 
 /* === Tab Bar === */
+.leaderboard-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
 .tab-bar {
   display: flex;
   gap: 4px;
   background: var(--color-bg-alt);
   border-radius: 10px;
   padding: 4px;
-  margin-bottom: 24px;
   width: fit-content;
 }
 
@@ -328,6 +335,13 @@ section {
   background: var(--color-bg);
   color: var(--color-heading);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.leaderboard-scope {
+  color: #94a3b8;
+  margin: 0;
+  font-size: 0.82rem;
+  white-space: nowrap;
 }
 
 /* === Charts === */
