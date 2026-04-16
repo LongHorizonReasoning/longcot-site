@@ -162,6 +162,9 @@ function renderOverallChart() {
         y: {
           min: 0,
           max: 60,
+          afterFit: scale => {
+            scale.width = 58;
+          },
           ticks: {
             stepSize: 10,
             callback: value => `${value}%`,
@@ -179,6 +182,9 @@ function renderOverallChart() {
           }
         },
         x: {
+          afterFit: scale => {
+            scale.height = 64;
+          },
           grid: { display: false },
           ticks: {
             autoSkip: false,
