@@ -302,11 +302,13 @@ section {
 
 /* === Tab Bar === */
 .leaderboard-controls {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: flex-start;
   gap: 12px;
   margin-bottom: 24px;
+  width: fit-content;
+  max-width: 100%;
 }
 
 .tab-bar {
@@ -941,9 +943,20 @@ footer {
     align-items: center;
   }
 
-  .tab-bar {
-    width: 100%;
+  .leaderboard-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     overflow-x: auto;
+  }
+
+  .tab-bar {
+    width: fit-content;
+    flex: 0 0 auto;
+  }
+
+  .leaderboard-scope {
+    flex: 0 0 auto;
   }
 
   .section-title {
