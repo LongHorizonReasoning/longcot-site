@@ -234,7 +234,8 @@ body {
 }
 
 .hero-link-btn {
-  min-width: 132px;
+  width: 152px;
+  min-width: 152px;
   justify-content: center;
 }
 
@@ -359,7 +360,7 @@ section {
 }
 
 #domainChart {
-  max-height: 400px;
+  max-height: none;
 }
 
 /* === Table === */
@@ -943,11 +944,17 @@ footer {
     align-items: center;
   }
 
+  .hero-link-btn {
+    width: 220px;
+    min-width: 220px;
+  }
+
   .leaderboard-controls {
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-start;
     gap: 8px;
-    overflow-x: auto;
+    overflow: visible;
   }
 
   .tab-bar {
@@ -957,6 +964,19 @@ footer {
 
   .leaderboard-scope {
     flex: 0 0 auto;
+    white-space: normal;
+  }
+
+  .example-tab-bar {
+    width: 100%;
+    flex-wrap: wrap;
+    overflow: visible;
+  }
+
+  .example-tab-bar .tab-btn {
+    flex: 1 1 calc(50% - 4px);
+    text-align: center;
+    min-width: 0;
   }
 
   .section-title {

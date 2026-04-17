@@ -30,6 +30,10 @@ const MODEL_COLORS = {
   open: '#059669'
 };
 
+function isThinViewport() {
+  return window.matchMedia('(max-width: 560px)').matches;
+}
+
 // === Init ===
 document.addEventListener('DOMContentLoaded', async () => {
   Chart.defaults.font.family = getComputedStyle(document.documentElement)
@@ -38,8 +42,18 @@ document.addEventListener('DOMContentLoaded', async () => {
   initNav();
   initTabs();
   initExampleTabs();
+  window.addEventListener('resize', handleViewportChange);
   await loadData();
 });
+
+let resizeTimer = null;
+
+function handleViewportChange() {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    if (data) renderLeaderboard();
+  }, 120);
+}
 
 // === Data Loading ===
 async function loadData() {
@@ -123,42 +137,53 @@ function renderOverallChart() {
   const models = [...data.models].sort((a, b) => b[currentTab].overall - a[currentTab].overall);
   const canvas = document.getElementById('overallChart');
   const ctx = canvas.getContext('2d');
-  const labels = models.map(m => formatModelLabel(m.name));
+  const thinViewport = isThinViewport();
+  const labels = models.map(m => thinViewport ? formatHorizontalLabel(m.name) : formatModelLabel(m.name));
 
-  canvas.parentElement.style.height = '440px';
+  canvas.parentElement.style.height = thinViewport
+    ? `${Math.max(360, models.length * 58 + 90)}px`
+    : '440px';
 
   if (overallChart) overallChart.destroy();
 
-  overallChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [{
-        label: 'Overall Accuracy (%)',
-        data: models.map(m => m[currentTab].overall),
-        backgroundColor: models.map(m => m.type === 'open' ? MODEL_COLORS.open : MODEL_COLORS.closed),
-        borderRadius: 4,
-        barThickness: 42,
-        maxBarThickness: 48,
-        categoryPercentage: 0.9,
-        barPercentage: 0.92
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      layout: {
-        padding: { top: 8, bottom: 4 }
-      },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: ctx => `${ctx.parsed.y.toFixed(2)}%`
+  const overallScales = thinViewport
+    ? {
+        y: {
+          afterFit: scale => {
+            scale.width = 114;
+          },
+          grid: { display: false },
+          ticks: {
+            autoSkip: false,
+            font: { family: Chart.defaults.font.family, size: 11, weight: '700' },
+            padding: 8
+          }
+        },
+        x: {
+          min: 0,
+          max: 60,
+          afterFit: scale => {
+            scale.height = 66;
+          },
+          ticks: {
+            stepSize: 10,
+            callback: value => `${value}%`,
+            font: { family: Chart.defaults.font.family, size: 11, weight: '700' },
+            padding: 6
+          },
+          title: {
+            display: true,
+            text: 'Accuracy (%)',
+            font: { family: Chart.defaults.font.family, size: 12, weight: '700' },
+            padding: { top: 12 }
+          },
+          grid: {
+            color: context => (context.tick.value % 20 === 0 ? '#cbd5e1' : '#e2e8f0'),
+            lineWidth: context => (context.tick.value % 20 === 0 ? 1.8 : 1)
           }
         }
-      },
-      scales: {
+      }
+    : {
         y: {
           min: 0,
           max: 60,
@@ -194,7 +219,39 @@ function renderOverallChart() {
             padding: 10
           }
         }
-      }
+      };
+
+  overallChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Overall Accuracy (%)',
+        data: models.map(m => m[currentTab].overall),
+        backgroundColor: models.map(m => m.type === 'open' ? MODEL_COLORS.open : MODEL_COLORS.closed),
+        borderRadius: 4,
+        barThickness: 42,
+        maxBarThickness: 48,
+        categoryPercentage: 0.9,
+        barPercentage: 0.92
+      }]
+    },
+    options: {
+      indexAxis: thinViewport ? 'y' : 'x',
+      responsive: true,
+      maintainAspectRatio: false,
+      layout: {
+        padding: { top: 8, bottom: 4 }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => `${(thinViewport ? ctx.parsed.x : ctx.parsed.y).toFixed(2)}%`
+          }
+        }
+      },
+      scales: overallScales
     }
   });
 }
@@ -292,7 +349,13 @@ let domainChart = null;
 function renderDomainChart() {
   const domains = ['logic', 'cs', 'chemistry', 'chess', 'math'];
   const models = [...data.models].sort((a, b) => b[currentTab].overall - a[currentTab].overall);
-  const ctx = document.getElementById('domainChart').getContext('2d');
+  const thinViewport = isThinViewport();
+  const canvas = document.getElementById('domainChart');
+  const ctx = canvas.getContext('2d');
+
+  canvas.parentElement.style.height = thinViewport
+    ? `${Math.max(440, models.length * 86 + 96)}px`
+    : '400px';
 
   if (domainChart) domainChart.destroy();
 
@@ -306,13 +369,72 @@ function renderDomainChart() {
     minBarLength: 0
   }));
 
+  const domainScales = thinViewport
+    ? {
+        y: {
+          afterFit: scale => {
+            scale.width = 114;
+          },
+          grid: { display: false },
+          ticks: {
+            autoSkip: false,
+            font: { family: Chart.defaults.font.family, size: 11, weight: '700' },
+            padding: 6
+          }
+        },
+        x: {
+          beginAtZero: true,
+          max: 20,
+          grid: {
+            color: context => (context.tick.value % 20 === 0 ? '#cbd5e1' : '#e2e8f0'),
+            lineWidth: context => (context.tick.value % 20 === 0 ? 1.8 : 1)
+          },
+          ticks: {
+            stepSize: 10,
+            callback: value => `${value}%`,
+            font: { family: Chart.defaults.font.family, size: 11, weight: '700' },
+            padding: 6
+          },
+          title: {
+            display: true,
+            text: 'Accuracy (%)',
+            font: { family: Chart.defaults.font.family, size: 12, weight: '700' },
+            padding: { top: 12 }
+          }
+        }
+      }
+    : {
+        y: {
+          beginAtZero: true,
+          max: 20,
+          title: {
+            display: true,
+            text: 'Accuracy (%)',
+            font: { family: Chart.defaults.font.family, size: 12, weight: '700' }
+          },
+          ticks: { font: { family: Chart.defaults.font.family, size: 11, weight: '700' } },
+          grid: {
+            color: context => (context.tick.value % 20 === 0 ? '#cbd5e1' : '#e2e8f0'),
+            lineWidth: context => (context.tick.value % 20 === 0 ? 1.8 : 1)
+          }
+        },
+        x: {
+          grid: { display: false },
+          ticks: {
+            autoSkip: false,
+            font: { family: Chart.defaults.font.family, size: 11, weight: '700' }
+          }
+        }
+      };
+
   domainChart = new Chart(ctx, {
     type: 'bar',
     data: {
-      labels: models.map(m => m.name),
+      labels: models.map(m => thinViewport ? formatHorizontalLabel(m.name) : formatModelLabel(m.name)),
       datasets
     },
     options: {
+      indexAxis: thinViewport ? 'y' : 'x',
       responsive: true,
       maintainAspectRatio: false,
       interaction: {
@@ -322,27 +444,43 @@ function renderDomainChart() {
       plugins: {
         legend: {
           position: 'top',
-          labels: { boxWidth: 14, padding: 16, font: { size: 12 } }
+          labels: { boxWidth: 14, padding: thinViewport ? 10 : 16, font: { size: thinViewport ? 11 : 12 } }
         },
         tooltip: {
           callbacks: {
-            label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}%`
+            label: ctx => `${ctx.dataset.label}: ${(thinViewport ? ctx.parsed.x : ctx.parsed.y).toFixed(1)}%`
           }
         }
       },
-      scales: {
-        y: {
-          beginAtZero: true,
-          title: { display: true, text: 'Accuracy (%)', font: { size: 12 } },
-          grid: { color: '#f1f5f9' }
-        },
-        x: {
-          grid: { display: false },
-          ticks: { font: { size: 11 } }
-        }
-      }
+      scales: domainScales
     }
   });
+}
+
+function formatHorizontalLabel(name) {
+  if (name.length <= 12 || !name.includes(' ')) {
+    return name;
+  }
+
+  const words = name.split(' ');
+  if (words.length === 2 && name.length <= 18) {
+    return words;
+  }
+
+  const chunks = [];
+  let current = '';
+  for (const word of words) {
+    const next = current ? `${current} ${word}` : word;
+    if (next.length > 11 && current) {
+      chunks.push(current);
+      current = word;
+    } else {
+      current = next;
+    }
+  }
+  if (current) chunks.push(current);
+
+  return chunks;
 }
 
 // === Copy to Clipboard ===
