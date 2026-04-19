@@ -69,12 +69,21 @@
     <div class="container">
       <h2 class="section-title">Leaderboard</h2>
 
-      <div class="leaderboard-controls">
+      <div class="leaderboard-track-controls">
         <div class="tab-bar">
-          <button class="tab-btn active" data-tab="longcot">LongCoT</button>
-          <button class="tab-btn" data-tab="longcot_mini">LongCoT-mini</button>
+          <button class="tab-btn active" data-track="raw_llm">Raw LLM</button>
+          <button class="tab-btn" data-track="restricted_harness">Restricted Harness</button>
+          <button class="tab-btn" data-track="open_harness">Open Harness</button>
         </div>
-        <p class="leaderboard-scope" id="leaderboard-scope">2,000 medium and hard questions.</p>
+        <p class="leaderboard-track-desc" id="leaderboard-track-desc">Single API call per question. No tools, scaffolds, or external code execution.</p>
+      </div>
+
+      <div class="leaderboard-controls" id="leaderboard-benchmark-controls">
+        <label class="mini-toggle" for="mini-toggle">
+          <span class="mini-toggle-label">Mini</span>
+          <input type="checkbox" id="mini-toggle" data-benchmark-toggle>
+          <span class="mini-toggle-switch" aria-hidden="true"></span>
+        </label>
       </div>
 
       <div class="chart-container">
@@ -87,6 +96,7 @@
             <tr>
               <th data-sort="rank">Rank</th>
               <th data-sort="name">Model</th>
+              <th data-sort="harness" id="leaderboard-harness-header">Harness</th>
               <th data-sort="provider">Provider</th>
               <th data-sort="overall" class="sort-active sort-desc">Overall</th>
               <th data-sort="logic">Logic</th>
@@ -94,13 +104,17 @@
               <th data-sort="chemistry">Chemistry</th>
               <th data-sort="chess">Chess</th>
               <th data-sort="math">Math</th>
+              <th data-sort="contributor">Contributor</th>
             </tr>
           </thead>
           <tbody></tbody>
         </table>
       </div>
+      <p class="table-note pending-note"><span class="pending-key" aria-hidden="true"></span> Pending verification</p>
+      <p class="table-scroll-note">You may have to scroll to see all columns.</p>
 
       <h3 class="subsection-title">Per-Domain Comparison</h3>
+      <p class="section-desc" id="domain-chart-note" style="display:none;">Per-domain breakdown for this track is not yet available.</p>
       <div class="chart-container">
         <canvas id="domainChart"></canvas>
       </div>

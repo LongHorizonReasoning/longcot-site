@@ -34,11 +34,11 @@
   --color-border: #e2e8f0;
   --color-open: #059669;
   --color-closed: #7c3aed;
-  --color-logic: #4f46e5;
+  --color-logic: #7c3aed;
   --color-cs: #2563eb;
   --color-chemistry: #0d9488;
   --color-chess: #d97706;
-  --color-math: #7c3aed;
+  --color-math: #c026d3;
   --font-sans: "Space Mono", "Geist Variable", "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono: "Space Mono", "Geist Mono Variable", "Geist Mono", "SF Mono", "Fira Code", "Fira Mono", "Roboto Mono", Menlo, Consolas, monospace;
   --max-width: 1200px;
@@ -302,6 +302,15 @@ section {
 }
 
 /* === Tab Bar === */
+.leaderboard-track-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 18px;
+  max-width: 100%;
+}
+
 .leaderboard-controls {
   display: inline-flex;
   align-items: center;
@@ -340,11 +349,74 @@ section {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
+.benchmark-tab-bar {
+  padding: 3px;
+  gap: 3px;
+}
+
+.benchmark-tab-bar .tab-btn {
+  padding: 6px 14px;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+.mini-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.82rem;
+  color: var(--color-heading);
+  font-weight: 600;
+}
+
+.mini-toggle input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.mini-toggle-switch {
+  position: relative;
+  width: 42px;
+  height: 24px;
+  border-radius: 999px;
+  background: #cbd5e1;
+  transition: background 0.15s;
+}
+
+.mini-toggle-switch::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: transform 0.15s;
+}
+
+.mini-toggle input:checked + .mini-toggle-switch {
+  background: #16a34a;
+}
+
+.mini-toggle input:checked + .mini-toggle-switch::after {
+  transform: translateX(18px);
+}
+
 .leaderboard-scope {
   color: #94a3b8;
   margin: 0;
   font-size: 0.82rem;
   white-space: nowrap;
+}
+
+.leaderboard-track-desc {
+  color: var(--color-muted);
+  margin: 0;
+  max-width: 900px;
+  font-size: 0.94rem;
 }
 
 /* === Charts === */
@@ -368,7 +440,35 @@ section {
   overflow-x: auto;
   border: 1px solid var(--color-border);
   border-radius: 12px;
+  margin-bottom: 8px;
+}
+
+.table-scroll-note {
+  color: #94a3b8;
+  font-size: 0.8rem;
   margin-bottom: 16px;
+}
+
+.table-note {
+  color: #94a3b8;
+  font-size: 0.8rem;
+  margin-bottom: 8px;
+}
+
+.pending-key {
+  display: inline-block;
+  width: 24px;
+  height: 12px;
+  margin-right: 8px;
+  vertical-align: middle;
+  border: 1px solid #cbd5e1;
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(148, 163, 184, 0.18),
+    rgba(148, 163, 184, 0.18) 6px,
+    rgba(148, 163, 184, 0.04) 6px,
+    rgba(148, 163, 184, 0.04) 12px
+  );
 }
 
 #leaderboard-table {
@@ -440,6 +540,14 @@ section {
   width: 140px;
 }
 
+#leaderboard-table th[data-sort="harness"] {
+  width: 110px;
+}
+
+#leaderboard-table th[data-sort="contributor"] {
+  width: 130px;
+}
+
 #leaderboard-table th[data-sort="overall"],
 #leaderboard-table th[data-sort="logic"],
 #leaderboard-table th[data-sort="cs"],
@@ -451,6 +559,20 @@ section {
 
 #leaderboard-table tbody tr:hover {
   background: #f1f5f9;
+}
+
+#leaderboard-table tbody tr.pending-row {
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(148, 163, 184, 0.16),
+    rgba(148, 163, 184, 0.16) 8px,
+    rgba(255, 255, 255, 0.7) 8px,
+    rgba(255, 255, 255, 0.7) 16px
+  );
+}
+
+#leaderboard-table tbody tr.pending-row td {
+  background: transparent;
 }
 
 .model-name {
@@ -957,6 +1079,11 @@ footer {
     overflow: visible;
   }
 
+  .leaderboard-track-controls {
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
   .tab-bar {
     width: fit-content;
     flex: 0 0 auto;
@@ -965,6 +1092,18 @@ footer {
   .leaderboard-scope {
     flex: 0 0 auto;
     white-space: normal;
+  }
+
+  .leaderboard-track-desc {
+    font-size: 0.88rem;
+  }
+
+  .mini-toggle {
+    gap: 8px;
+  }
+
+  .table-scroll-note {
+    font-size: 0.76rem;
   }
 
   .example-tab-bar {
